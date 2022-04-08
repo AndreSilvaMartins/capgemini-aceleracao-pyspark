@@ -30,4 +30,4 @@ Para executar os Jupyter Notebooks deste repositório é necessário ter o [Spar
 │   ├── 2.3_transformation_flights.ipynb   <- Contem tratamentos dos dados Flights.
 │   ├── 3.1_report_qualidade.ipynb           <- Contém respostas de qualidade baseadas em dados.
 │   ├── 3.2_report_negocios.ipynb           <- Contém respostas de negócio baseadas em dados.
-```
+
