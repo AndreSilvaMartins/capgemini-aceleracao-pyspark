@@ -1,7 +1,8 @@
+import re
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType, TimestampType
  
 if __name__ == "__main__":
 	sc = SparkContext()
@@ -24,8 +25,14 @@ if __name__ == "__main__":
 		          .schema(schema_online_retail)
 		          .load("/home/spark/capgemini-aceleracao-pyspark/data/online-retail/online-retail.csv"))
 
+	
+	#SUBSTITUIR "," POR "." E CONVERVETER VALOR PARA FLOAT
 	df = df.withColumn('UnitPrice', F.regexp_replace(F.col('UnitPrice'),',','.').cast('float'))
-	#print(df.filter(F.col('StockCode').contains('gift_0001')).show())
+
+	#FORMATAR DATA NO FORMATO d/M/yyyy H:m E CONVERTER PARA TimestampType
+	df = (df.withColumn('InvoiceDate', F.to_timestamp(F.col('InvoiceDate'), 'd/M/yyyy H:m')))
+
+	#print(df.show())
 
 	df.createOrReplaceTempView('df_online_retail')
 
@@ -38,6 +45,21 @@ def p1_OR ():
 	AND SUBSTRING(InvoiceNo,1,1) <> 'c'
 	""").show())
 
-p1_OR()
+#p1_OR()
 
+def p2_OR ():
+	print(spark.getOrCreate().sql(f"""
+	SELECT  Year(InvoiceDate) as Year,
+			Month(InvoiceDate) as Month,
+			ROUND(SUM(Quantity*UnitPrice),2) as Valor_Gift_Card
+	FROM df_online_retail
+	WHERE StockCode like 'gift_0001_%'
+	AND SUBSTRING(InvoiceNo,1,1) <> 'C'
+	AND SUBSTRING(InvoiceNo,1,1) <> 'c'
+	GROUP BY Year(InvoiceDate),
+			 Month(InvoiceDate)
+	ORDER BY 1, 2
+	""").show())
+
+p2_OR()
 
