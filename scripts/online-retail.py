@@ -32,6 +32,9 @@ if __name__ == "__main__":
 	#FORMATAR DATA NO FORMATO d/M/yyyy H:m E CONVERTER PARA TimestampType
 	df = (df.withColumn('InvoiceDate', F.to_timestamp(F.col('InvoiceDate'), 'd/M/yyyy H:m')))
 
+	#CRIAR CAMPO SOLD (VALOR VENDIDO Quantity*UnitPrice)
+	df = (df.withColumn('Sold', F.col("Quantity")*F.col("UnitPrice")))
+
 	#print(df.show())
 
 	df.createOrReplaceTempView('df_online_retail')
@@ -73,3 +76,13 @@ def p3_OR ():
 	""").show())
 
 #p3_OR()
+
+def p4_OR ():
+	print((df.filter(~(F.col('InvoiceNo').startswith('C')) & ~(F.col('InvoiceNo').startswith('c')))
+			 .groupBy('Description')
+		     .agg(F.sum('Sold').alias('Max_Valor'))
+		     .agg(F.max(F.struct(F.col('Max_Valor'),
+							    F.col('Description').alias("Produto"))).alias('Max_Product'))
+		     .select("Max_Product.Produto", F.round("Max_Product.Max_Valor",2).alias('Valor_Produto'))).show())
+
+p4_OR()
