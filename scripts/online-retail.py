@@ -85,4 +85,30 @@ def p4_OR ():
 							    F.col('Description').alias("Produto"))).alias('Max_Product'))
 		     .select("Max_Product.Produto", F.round("Max_Product.Max_Valor",2).alias('Valor_Produto'))).show())
 
-p4_OR()
+#p4_OR()
+
+def p5_OR ():
+	print(spark.getOrCreate().sql(f"""
+									WITH MAX_VALOR
+									AS
+									(SELECT YEAR(InvoiceDate) AS Ano,
+											MONTH(InvoiceDate) AS Mes,
+											Description AS Produto,
+											SUM(Sold) AS Valor_Vendas
+									FROM df_online_retail
+									WHERE SUBSTRING(InvoiceNo,1,1) <> 'C'
+									AND SUBSTRING(InvoiceNo,1,1) <> 'c'
+									GROUP BY YEAR(InvoiceDate),
+											 MONTH(InvoiceDate), 
+											 Description)
+
+									SELECT  Ano,
+											Mes,
+											Produto,
+											Valor_Vendas as Valor_Vendido
+									FROM MAX_VALOR a
+									WHERE Valor_Vendas = (SELECT MAX(b.Valor_Vendas) FROM MAX_VALOR b WHERE a.Ano = b.Ano and a.Mes = b.Mes)
+									ORDER BY 1, 2
+									""").show())
+
+p5_OR()
