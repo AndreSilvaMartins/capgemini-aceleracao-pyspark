@@ -61,5 +61,15 @@ def p2_OR ():
 	ORDER BY 1, 2
 	""").show())
 
-p2_OR()
+#p2_OR()
 
+def p3_OR ():
+	print(spark.getOrCreate().sql(f"""
+	SELECT  ROUND(SUM(Quantity*UnitPrice),2) as Valor_Sample
+	FROM df_online_retail
+	WHERE StockCode = 'S'
+	AND SUBSTRING(InvoiceNo,1,1) <> 'C'
+	AND SUBSTRING(InvoiceNo,1,1) <> 'c'
+	""").show())
+
+#p3_OR()
