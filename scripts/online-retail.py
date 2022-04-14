@@ -252,6 +252,66 @@ def p11_OR ():
 									ORDER BY 1, 2
 									""").show())
 
+def p12_OR ():
+	print("Pergunta 12")
+	print(spark.getOrCreate().sql(f"""
+									WITH MAX_QUANTIDADE
+									AS
+									(SELECT InvoiceNo AS Nota_Fiscal,
+											ROUND(SUM(Quantity),2) AS Quantidade_Vendas
+									FROM df_online_retail
+									WHERE SUBSTRING(InvoiceNo,1,1) <> 'C'
+									AND SUBSTRING(InvoiceNo,1,1) <> 'c'
+									AND StockCode <> 'PADS'
+									GROUP BY InvoiceNo)
+									
+									SELECT  Nota_Fiscal,
+											Quantidade_Vendas as Quantidade_Vendida
+									FROM MAX_QUANTIDADE a
+									WHERE Quantidade_Vendas = (SELECT MAX(Quantidade_Vendas) FROM MAX_QUANTIDADE)
+									ORDER BY 1, 2
+									""").show())
+
+def p12_OR_2 ():
+	print("Pergunta 12")
+	print(spark.getOrCreate().sql(f"""
+									WITH MAX_QUANTIDADE
+									AS
+									(SELECT InvoiceNo AS Nota_Fiscal,
+											COUNT(Distinct Description) AS Quantidade_Itens
+									FROM df_online_retail
+									WHERE SUBSTRING(InvoiceNo,1,1) <> 'C'
+									AND SUBSTRING(InvoiceNo,1,1) <> 'c'
+									AND StockCode <> 'PADS'
+									GROUP BY InvoiceNo)
+									
+									SELECT  Nota_Fiscal,
+											Quantidade_Itens as Quantidade_Vendida
+									FROM MAX_QUANTIDADE a
+									WHERE Quantidade_Itens = (SELECT MAX(Quantidade_Itens) FROM MAX_QUANTIDADE)
+									ORDER BY 1, 2
+									""").show())
+
+def p12_OR ():
+	print("Pergunta 12")
+	print(spark.getOrCreate().sql(f"""
+									WITH MAX_QUANTIDADE
+									AS
+									(SELECT InvoiceNo AS Nota_Fiscal,
+											ROUND(SUM(Quantity),2) AS Quantidade_Vendas
+									FROM df_online_retail
+									WHERE SUBSTRING(InvoiceNo,1,1) <> 'C'
+									AND SUBSTRING(InvoiceNo,1,1) <> 'c'
+									AND StockCode <> 'PADS'
+									GROUP BY InvoiceNo)
+									
+									SELECT  Nota_Fiscal,
+											Quantidade_Vendas as Quantidade_Vendida
+									FROM MAX_QUANTIDADE a
+									WHERE Quantidade_Vendas = (SELECT MAX(Quantidade_Vendas) FROM MAX_QUANTIDADE)
+									ORDER BY 1, 2
+									""").show())
+
 df = Transformar_UnitPrice_Float(df)
 df = Adicionar_Variavel_Sold(df)
 df = Transformar_InvoiceDate_TimeStamp(df)
@@ -266,4 +326,7 @@ Criar_TempView(df)
 #p8_OR()
 #p9_OR()
 #p10_OR()
-p11_OR()
+#p11_OR()
+p12_OR()
+p12_OR_2()
+
