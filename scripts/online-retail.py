@@ -292,41 +292,45 @@ def p12_OR_2 ():
 									ORDER BY 1, 2
 									""").show())
 
-def p12_OR ():
-	print("Pergunta 12")
+def p13_OR ():
+	print("Pergunta 13")
 	print(spark.getOrCreate().sql(f"""
-									WITH MAX_QUANTIDADE
+									WITH MAX_FREQ
 									AS
-									(SELECT InvoiceNo AS Nota_Fiscal,
-											ROUND(SUM(Quantity),2) AS Quantidade_Vendas
+									(SELECT CustomerID AS Cliente,
+											COUNT(Distinct InvoiceDate) AS Freq_Vendas
 									FROM df_online_retail
 									WHERE SUBSTRING(InvoiceNo,1,1) <> 'C'
 									AND SUBSTRING(InvoiceNo,1,1) <> 'c'
 									AND StockCode <> 'PADS'
-									GROUP BY InvoiceNo)
+									AND CustomerID IS NOT NULL
+									GROUP BY CustomerID)
 									
-									SELECT  Nota_Fiscal,
-											Quantidade_Vendas as Quantidade_Vendida
-									FROM MAX_QUANTIDADE a
-									WHERE Quantidade_Vendas = (SELECT MAX(Quantidade_Vendas) FROM MAX_QUANTIDADE)
+									SELECT  Cliente,
+											Freq_Vendas as Freq_Compras
+									FROM MAX_FREQ a
+									WHERE Freq_Vendas = (SELECT MAX(Freq_Vendas) FROM MAX_FREQ)
 									ORDER BY 1, 2
 									""").show())
 
+#CHAMANDO FUNÇÕES DE TRANSFORMAÇÃO
 df = Transformar_UnitPrice_Float(df)
 df = Adicionar_Variavel_Sold(df)
 df = Transformar_InvoiceDate_TimeStamp(df)
 Criar_TempView(df)
-#p1_OR()
-#p2_OR()
-#p3_OR()
-#p4_OR()
-#p5_OR()
-#p6_OR()
-#p7_OR()
-#p8_OR()
-#p9_OR()
-#p10_OR()
-#p11_OR()
+
+#CHAMANDO FUNÇÕES DE EXTRAÇÃO OUTPUTS
+p1_OR()
+p2_OR()
+p3_OR()
+p4_OR()
+p5_OR()
+p6_OR()
+p7_OR()
+p8_OR()
+p9_OR()
+p10_OR()
+p11_OR()
 p12_OR()
 p12_OR_2()
-
+p13_OR()
