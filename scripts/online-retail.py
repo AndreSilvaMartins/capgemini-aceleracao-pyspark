@@ -208,6 +208,30 @@ def p9_OR ():
 									ORDER BY 1, 2
 									""").show())
 
+def p10_OR ():
+	print("Pergunta 10")
+	print(spark.getOrCreate().sql(f"""
+									WITH MAX_VALOR
+									AS
+									(SELECT Country AS Pais,
+											ROUND(SUM(Sold),2) AS Valor_Vendas
+									FROM df_online_retail
+									WHERE SUBSTRING(InvoiceNo,1,1) <> 'C'
+									AND SUBSTRING(InvoiceNo,1,1) <> 'c'
+									AND StockCode <> 'PADS'
+									AND (StockCode = 'm'
+									OR StockCode = 'M'
+									OR RIGHT(StockCode,1) = 'm'
+									OR RIGHT(StockCode,1) = 'M')
+									GROUP BY Country)
+									
+									SELECT  Pais,
+											Valor_Vendas as Valor_Vendido
+									FROM MAX_VALOR a
+									WHERE Valor_Vendas = (SELECT MAX(Valor_Vendas) FROM MAX_VALOR)
+									ORDER BY 1, 2
+									""").show())
+
 df = Transformar_UnitPrice_Float(df)
 df = Adicionar_Variavel_Sold(df)
 df = Transformar_InvoiceDate_TimeStamp(df)
@@ -220,5 +244,6 @@ Criar_TempView(df)
 #p6_OR()
 #p7_OR()
 #p8_OR()
-p9_OR()
+#p9_OR()
+p10_OR()
 
