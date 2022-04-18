@@ -164,7 +164,7 @@ if __name__ == "__main__":
 		print("Pergunta 1 - Qual comunidade tem maior orçamento policial?")
 
 		df_communityname = (df.filter(F.col('PolicOperBudg') > 0)
-							  .groupBy(F.col('communityname'))
+							  .groupBy(F.col('state'), F.col('communityname'))
 							  .agg(F.sum("PolicOperBudg").alias("Max_Budget")))
 
 		df_max = (df_communityname.agg(F.max("Max_Budget").alias("Max")))
@@ -174,8 +174,25 @@ if __name__ == "__main__":
                                            ,"left"))
 
 		print((df_result.filter(F.col('Max_Budget') == F.col('Max'))
-						.select(F.col("communityname"), F.col("Max_Budget"))).show(truncate=False))
+						.select(F.col("State"), F.col("communityname"), F.col("Max_Budget"))).show(truncate=False))
+
+	def P2_CC():
+		print("Pergunta 2 - Qual comunidade tem maior número de crimes violentos?")
+		
+		df_communityname = (df.filter(F.col('ViolentCrimesPerPop') > 0)
+							  .groupBy(F.col('state'), F.col('communityname'))
+							  .agg(F.max("ViolentCrimesPerPop").alias("Max_Violence")))
+
+		df_max = (df_communityname.agg(F.max("Max_Violence").alias("Max")))
+
+		df_result = (df_communityname.join(df_max, 
+                                          (df_communityname.Max_Violence ==  df_max.Max) 
+                                           ,"left"))
+
+		print((df_result.filter(F.col('Max_Violence') == F.col('Max'))
+						.select(F.col("State"), F.col("communityname"), F.col("Max_Violence"))).show(truncate=False))
 
 
 df = Trans_Substituir_Interrogacao(df)
 P1_CC()
+P2_CC()
