@@ -192,7 +192,24 @@ if __name__ == "__main__":
 		print((df_result.filter(F.col('Max_Violence') == F.col('Max'))
 						.select(F.col("State"), F.col("communityname"), F.col("Max_Violence"))).show(truncate=False))
 
+	def P3_CC():
+		print("Pergunta 3 - Qual comunidade tem maior população?")
+		
+		df_communityname = (df.filter(F.col('population') > 0)
+							  .groupBy(F.col('state'), F.col('communityname'))
+							  .agg(F.max("population").alias("Max_population")))
+
+		df_max = (df_communityname.agg(F.max("Max_population").alias("Max")))
+
+		df_result = (df_communityname.join(df_max, 
+                                          (df_communityname.Max_population ==  df_max.Max) 
+                                           ,"left"))
+
+		print((df_result.filter(F.col('Max_population') == F.col('Max'))
+						.select(F.col("State"), F.col("communityname"), F.col("Max_population"))).show(truncate=False))
+
 
 df = Trans_Substituir_Interrogacao(df)
-P1_CC()
-P2_CC()
+#P1_CC()
+#P2_CC()
+P3_CC()
