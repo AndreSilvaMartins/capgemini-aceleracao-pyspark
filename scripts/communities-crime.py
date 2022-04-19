@@ -2,6 +2,7 @@ from pyspark import SparkContext, SparkConf
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType
+from pyspark.sql.window import Window
 
 if __name__ == "__main__":
 	sc = SparkContext()
@@ -160,6 +161,19 @@ def Trans_Substituir_Interrogacao(df):
 
 	return df
 
+#ADICIONAR COLUNA DE RAÇA PREDOMINANTE
+def Trans_Var_Raca_Predominante(df):
+	
+	df = df.withColumn("racePred", (F.when(F.col("racepctblack") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racepctblack")
+									 .when(F.col("racePctWhite") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racePctWhite")
+		                             .when(F.col("racePctAsian") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racePctAsian")
+									 .when(F.col("racePctHisp") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racePctHisp")
+									 .otherwise(None)
+									)
+						  )
+
+	return df
+
 def P1_CC():
 	print("Pergunta 1 - Qual comunidade tem maior orçamento policial?")
 
@@ -281,8 +295,17 @@ def P11_CC():
 	
 	print(df.filter((F.col('ViolentCrimesPerPop') >= 0) & (F.col('medFamInc') >= 0)).stat.corr('medFamInc','ViolentCrimesPerPop',))
 
+def P12_CC():
+	print("Pergunta 12 - Qual raça é predominante nas 10 comunidades com maior número de crimes violentos?")
+	
+	Partition_A1 = Window.partitionBy().orderBy(F.col("ViolentCrimesPerPop").desc())
+
+	print((df.withColumn("row",F.row_number().over(Partition_A1))
+                    .filter((F.col("row") <= 10))
+					.select(F.col("state"), F.col("communityname"), F.col("ViolentCrimesPerPop"), F.col("racePred"), F.col("row"))).show())
 
 df = Trans_Substituir_Interrogacao(df)
+df = Trans_Var_Raca_Predominante(df)
 #P1_CC()
 #P2_CC()
 #P3_CC()
@@ -293,4 +316,10 @@ df = Trans_Substituir_Interrogacao(df)
 #P8_CC()
 #P9_CC()
 #P10_CC()
-P11_CC()
+#P11_CC()
+P12_CC()
+
+#print((df.filter((F.col('population') > 0) & (F.col('agePct12t21') >= 0))
+#				.groupBy(F.col('state'), F.col('communityname'), F.col('population'), F.col('agePct12t21'))
+#				.agg(F.max((F.col("population") * F.col("agePct12t21"))).alias("Max_age12t21_population"))
+#				.orderBy(F.col("Max_age12t21_population").desc()).show(100,truncate=False)))
