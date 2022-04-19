@@ -140,10 +140,11 @@ if __name__ == "__main__":
 											])
 
 	df = (spark.getOrCreate().read
-		          						 .format("csv")
-		          						 .option("header", "true")
-		          						 #.schema(schema_communities_crime)
-		          						 .load("/home/spark/capgemini-aceleracao-pyspark/data/communities-crime/communities-crime.csv"))
+		.format("csv")
+		.option("header", "true")
+		#.schema(schema_communities_crime)
+		# Desse jeito o caminho fica mais facil quando for clonado
+		.load("./data/communities-crime/communities-crime.csv"))
 
 #SUBSTITUIR "?" POR NONE
 def Trans_Substituir_Interrogacao(df):
@@ -164,11 +165,12 @@ def Trans_Substituir_Interrogacao(df):
 #ADICIONAR COLUNA DE RAÇA PREDOMINANTE
 def Trans_Var_Raca_Predominante(df):
 	
-	df = df.withColumn("racePred", (F.when(F.col("racepctblack") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racepctblack")
-									 .when(F.col("racePctWhite") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racePctWhite")
-		                             .when(F.col("racePctAsian") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racePctAsian")
-									 .when(F.col("racePctHisp") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racePctHisp")
-									 .otherwise(None)
+	df = df.withColumn("racePred",
+		(F.when(F.col("racepctblack") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racepctblack")
+		.when(F.col("racePctWhite") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racePctWhite")
+		.when(F.col("racePctAsian") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racePctAsian")
+		.when(F.col("racePctHisp") ==  F.greatest('racepctblack', 'racePctWhite', 'racePctAsian', 'racePctHisp'), "racePctHisp")
+		.otherwise(None)
 									)
 						  )
 
@@ -238,12 +240,13 @@ def P4_CC():
 	print((df_result.filter(F.col('Max_black_population') == F.col('Max'))
 					.select(F.col("State"), F.col("communityname"), F.col("Max_black_population"))).show(truncate=False))
 
+# Aqui eu troquei a coluna que voce usou para perCapInc, a pctWWage tem dados de 1989
 def P5_CC():
 	print("Pergunta 5 - Qual comunidade tem maior percentual de pessoas que recebem salário?")
 	
-	df_communityname = (df.filter((F.col('population') > 0) & (F.col('pctWWage') >= 0))
+	df_communityname = (df.filter((F.col('population') > 0) & (F.col('perCapInc') >= 0))
 							.groupBy(F.col('state'), F.col('communityname'))
-							.agg(F.max((F.col("population") * F.col("pctWWage"))).alias("Max_wage_population")))
+							.agg(F.max((F.col("population") * F.col("perCapInc"))).alias("Max_wage_population")))
 
 	df_max = (df_communityname.agg(F.max("Max_wage_population").alias("Max")))
 
@@ -306,18 +309,18 @@ def P12_CC():
 
 df = Trans_Substituir_Interrogacao(df)
 df = Trans_Var_Raca_Predominante(df)
-#P1_CC()
-#P2_CC()
-#P3_CC()
-#P4_CC()
-#P5_CC()
+# P1_CC()
+# P2_CC()
+# P3_CC()
+# P4_CC()
+P5_CC()
 #P6_CC()
 #P7_CC()
 #P8_CC()
 #P9_CC()
 #P10_CC()
 #P11_CC()
-P12_CC()
+# P12_CC()
 
 #print((df.filter((F.col('population') > 0) & (F.col('agePct12t21') >= 0))
 #				.groupBy(F.col('state'), F.col('communityname'), F.col('population'), F.col('agePct12t21'))
