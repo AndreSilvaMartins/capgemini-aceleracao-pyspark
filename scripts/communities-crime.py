@@ -257,9 +257,14 @@ def P6_CC():
 					.select(F.col("State"), F.col("communityname"), F.col("Max_age12t21_population"))).show(truncate=False))
 
 def P7_CC():
-	print(" Qual a correlação entre orçamento policial e número de crimes violentos?")
+	print("Pergunta 7 - Qual a correlação entre orçamento policial e número de crimes violentos?")
 	
 	print(df.filter((F.col('PolicOperBudg') >= 0) & (F.col('ViolentCrimesPerPop') >= 0)).stat.corr('PolicOperBudg', 'ViolentCrimesPerPop'))
+
+def P8_CC():
+	print("Pergunta 8 - Qual a correlação entre percentual de policiais brancos e orçamento policial?")
+	
+	print(df.filter((F.col('PolicOperBudg') >= 0) & (F.col('PctPolicWhite') >= 0)).stat.corr('PctPolicWhite','PolicOperBudg',))
 
 df = Trans_Substituir_Interrogacao(df)
 #P1_CC()
@@ -268,5 +273,6 @@ df = Trans_Substituir_Interrogacao(df)
 #P4_CC()
 #P5_CC()
 #P6_CC()
-P7_CC()
+#P7_CC()
+P8_CC()
 
