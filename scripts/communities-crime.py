@@ -224,9 +224,26 @@ def P4_CC():
 	print((df_result.filter(F.col('Max_black_population') == F.col('Max'))
 					.select(F.col("State"), F.col("communityname"), F.col("Max_black_population"))).show(truncate=False))
 
+def P5_CC():
+	print("Pergunta 5 - Qual comunidade tem maior percentual de pessoas que recebem salário?")
+	
+	df_communityname = (df.filter((F.col('population') > 0) & (F.col('pctWWage') >= 0))
+							.groupBy(F.col('state'), F.col('communityname'))
+							.agg(F.max((F.col("population") * F.col("pctWWage"))).alias("Max_wage_population")))
+
+	df_max = (df_communityname.agg(F.max("Max_wage_population").alias("Max")))
+
+	df_result = (df_communityname.join(df_max, 
+										(df_communityname.Max_wage_population ==  df_max.Max) 
+										,"left"))
+
+	print((df_result.filter(F.col('Max_wage_population') == F.col('Max'))
+					.select(F.col("State"), F.col("communityname"), F.col("Max_wage_population"))).show(truncate=False))
+
 df = Trans_Substituir_Interrogacao(df)
 #P1_CC()
 #P2_CC()
 #P3_CC()
-P4_CC()
+#P4_CC()
+P5_CC()
 
