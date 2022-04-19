@@ -22,6 +22,15 @@ Para executar os Jupyter Notebooks deste repositório é necessário ter o [Spar
 │   ├── airports.csv
 │   ├── planes.csv
 │   ├── flights.csv
+│   ├── census-income
+│   │   ├── census-income.csv
+│   │   ├── census-income.names
+│   ├── communities-crime
+│   │   ├── communities-crime.csv
+│   │   ├── communities.names
+│   ├── online-retail
+│   │   ├── online-retail.csv
+│   │   ├── online-retail.names
 │
 ├── notebooks
 │   ├── 1_quality.ipynb          <- Contém apontamentos de dados inconsistêntes.
@@ -30,4 +39,7 @@ Para executar os Jupyter Notebooks deste repositório é necessário ter o [Spar
 │   ├── 2.3_transformation_flights.ipynb   <- Contem tratamentos dos dados Flights.
 │   ├── 3.1_report_qualidade.ipynb           <- Contém respostas de qualidade baseadas em dados.
 │   ├── 3.2_report_negocios.ipynb           <- Contém respostas de negócio baseadas em dados.
+│   ├── census-income.py           <- Contém respostas de negócio baseadas em dados do census.
+│   ├── communities-crime.py           <- Contém respostas de negócio baseadas em dados do Communities Crime.
+│   ├── online-retail.py           <- Contém respostas de negócio baseadas em dados de Online Retail.
 
