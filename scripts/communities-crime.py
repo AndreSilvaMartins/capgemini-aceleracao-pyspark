@@ -2,7 +2,7 @@ from pyspark import SparkContext, SparkConf
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType
- 
+
 if __name__ == "__main__":
 	sc = SparkContext()
 	spark = (SparkSession.builder.appName("Aceleração PySpark - Capgemini [Communities & Crime]"))
@@ -144,72 +144,89 @@ if __name__ == "__main__":
 		          						 #.schema(schema_communities_crime)
 		          						 .load("/home/spark/capgemini-aceleracao-pyspark/data/communities-crime/communities-crime.csv"))
 
-	#SUBSTITUIR "?" POR NONE
-	def Trans_Substituir_Interrogacao(df):
-		names = df.schema.names
-		for c in names:
-			df = df.withColumn(c, (F.when((F.col(c).contains("?")) , None)
-															.otherwise(F.col(c))
-											)
-													  )
+#SUBSTITUIR "?" POR NONE
+def Trans_Substituir_Interrogacao(df):
+	names = df.schema.names
+	for c in names:
+		df = df.withColumn(c, (F.when((F.col(c).contains("?")) , None)
+														.otherwise(F.col(c))
+										)
+													)
 
-			if (c != "communityname") & (c in ("state", "county", "community", "fold")):
-				df = df.withColumn(c, (F.col(c).cast("int")))	
-			elif (c != "communityname"):
-				df = df.withColumn(c, (F.col(c).cast("float")))
+		if (c != "communityname") & (c in ("state", "county", "community", "fold")):
+			df = df.withColumn(c, (F.col(c).cast("int")))	
+		elif (c != "communityname"):
+			df = df.withColumn(c, (F.col(c).cast("float")))
 
-		return df
+	return df
 
-	def P1_CC():
-		print("Pergunta 1 - Qual comunidade tem maior orçamento policial?")
+def P1_CC():
+	print("Pergunta 1 - Qual comunidade tem maior orçamento policial?")
 
-		df_communityname = (df.filter(F.col('PolicOperBudg') > 0)
-							  .groupBy(F.col('state'), F.col('communityname'))
-							  .agg(F.sum("PolicOperBudg").alias("Max_Budget")))
+	df_communityname = (df.filter(F.col('PolicOperBudg') > 0)
+							.groupBy(F.col('state'), F.col('communityname'))
+							.agg(F.sum("PolicOperBudg").alias("Max_Budget")))
 
-		df_max = (df_communityname.agg(F.max("Max_Budget").alias("Max")))
+	df_max = (df_communityname.agg(F.max("Max_Budget").alias("Max")))
 
-		df_result = (df_communityname.join(df_max, 
-                                          (df_communityname.Max_Budget ==  df_max.Max) 
-                                           ,"left"))
+	df_result = (df_communityname.join(df_max, 
+										(df_communityname.Max_Budget ==  df_max.Max) 
+										,"left"))
 
-		print((df_result.filter(F.col('Max_Budget') == F.col('Max'))
-						.select(F.col("State"), F.col("communityname"), F.col("Max_Budget"))).show(truncate=False))
+	print((df_result.filter(F.col('Max_Budget') == F.col('Max'))
+					.select(F.col("State"), F.col("communityname"), F.col("Max_Budget"))).show(truncate=False))
 
-	def P2_CC():
-		print("Pergunta 2 - Qual comunidade tem maior número de crimes violentos?")
-		
-		df_communityname = (df.filter(F.col('ViolentCrimesPerPop') > 0)
-							  .groupBy(F.col('state'), F.col('communityname'))
-							  .agg(F.max("ViolentCrimesPerPop").alias("Max_Violence")))
+def P2_CC():
+	print("Pergunta 2 - Qual comunidade tem maior número de crimes violentos?")
+	
+	df_communityname = (df.filter(F.col('ViolentCrimesPerPop') > 0)
+							.groupBy(F.col('state'), F.col('communityname'))
+							.agg(F.max("ViolentCrimesPerPop").alias("Max_Violence")))
 
-		df_max = (df_communityname.agg(F.max("Max_Violence").alias("Max")))
+	df_max = (df_communityname.agg(F.max("Max_Violence").alias("Max")))
 
-		df_result = (df_communityname.join(df_max, 
-                                          (df_communityname.Max_Violence ==  df_max.Max) 
-                                           ,"left"))
+	df_result = (df_communityname.join(df_max, 
+										(df_communityname.Max_Violence ==  df_max.Max) 
+										,"left"))
 
-		print((df_result.filter(F.col('Max_Violence') == F.col('Max'))
-						.select(F.col("State"), F.col("communityname"), F.col("Max_Violence"))).show(truncate=False))
+	print((df_result.filter(F.col('Max_Violence') == F.col('Max'))
+					.select(F.col("State"), F.col("communityname"), F.col("Max_Violence"))).show(truncate=False))
 
-	def P3_CC():
-		print("Pergunta 3 - Qual comunidade tem maior população?")
-		
-		df_communityname = (df.filter(F.col('population') > 0)
-							  .groupBy(F.col('state'), F.col('communityname'))
-							  .agg(F.max("population").alias("Max_population")))
+def P3_CC():
+	print("Pergunta 3 - Qual comunidade tem maior população?")
+	
+	df_communityname = (df.filter(F.col('population') > 0)
+							.groupBy(F.col('state'), F.col('communityname'))
+							.agg(F.max("population").alias("Max_population")))
 
-		df_max = (df_communityname.agg(F.max("Max_population").alias("Max")))
+	df_max = (df_communityname.agg(F.max("Max_population").alias("Max")))
 
-		df_result = (df_communityname.join(df_max, 
-                                          (df_communityname.Max_population ==  df_max.Max) 
-                                           ,"left"))
+	df_result = (df_communityname.join(df_max, 
+										(df_communityname.Max_population ==  df_max.Max) 
+										,"left"))
 
-		print((df_result.filter(F.col('Max_population') == F.col('Max'))
-						.select(F.col("State"), F.col("communityname"), F.col("Max_population"))).show(truncate=False))
+	print((df_result.filter(F.col('Max_population') == F.col('Max'))
+					.select(F.col("State"), F.col("communityname"), F.col("Max_population"))).show(truncate=False))
 
+def P4_CC():
+	print("Pergunta 4 - Qual comunidade tem maior população negra?")
+	
+	df_communityname = (df.filter((F.col('population') > 0) & (F.col('racepctblack') >= 0))
+							.groupBy(F.col('state'), F.col('communityname'))
+							.agg(F.max((F.col("population") * F.col("racepctblack"))).alias("Max_black_population")))
+
+	df_max = (df_communityname.agg(F.max("Max_black_population").alias("Max")))
+
+	df_result = (df_communityname.join(df_max, 
+										(df_communityname.Max_black_population ==  df_max.Max) 
+										,"left"))
+
+	print((df_result.filter(F.col('Max_black_population') == F.col('Max'))
+					.select(F.col("State"), F.col("communityname"), F.col("Max_black_population"))).show(truncate=False))
 
 df = Trans_Substituir_Interrogacao(df)
 #P1_CC()
 #P2_CC()
-P3_CC()
+#P3_CC()
+P4_CC()
+
