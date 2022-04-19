@@ -256,11 +256,17 @@ def P6_CC():
 	print((df_result.filter(F.col('Max_age12t21_population') == F.col('Max'))
 					.select(F.col("State"), F.col("communityname"), F.col("Max_age12t21_population"))).show(truncate=False))
 
+def P7_CC():
+	print(" Qual a correlação entre orçamento policial e número de crimes violentos?")
+	
+	print(df.filter((F.col('PolicOperBudg') >= 0) & (F.col('ViolentCrimesPerPop') >= 0)).stat.corr('PolicOperBudg', 'ViolentCrimesPerPop'))
+
 df = Trans_Substituir_Interrogacao(df)
 #P1_CC()
 #P2_CC()
 #P3_CC()
 #P4_CC()
 #P5_CC()
-P6_CC()
+#P6_CC()
+P7_CC()
 
