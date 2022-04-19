@@ -240,9 +240,27 @@ def P5_CC():
 	print((df_result.filter(F.col('Max_wage_population') == F.col('Max'))
 					.select(F.col("State"), F.col("communityname"), F.col("Max_wage_population"))).show(truncate=False))
 
+def P6_CC():
+	print("Pergunta 6 - Qual comunidade tem maior população jovem?")
+	
+	df_communityname = (df.filter((F.col('population') > 0) & (F.col('agePct12t21') >= 0))
+							.groupBy(F.col('state'), F.col('communityname'))
+							.agg(F.max((F.col("population") * F.col("agePct12t21"))).alias("Max_age12t21_population")))
+
+	df_max = (df_communityname.agg(F.max("Max_age12t21_population").alias("Max")))
+
+	df_result = (df_communityname.join(df_max, 
+										(df_communityname.Max_age12t21_population ==  df_max.Max) 
+										,"left"))
+
+	print((df_result.filter(F.col('Max_age12t21_population') == F.col('Max'))
+					.select(F.col("State"), F.col("communityname"), F.col("Max_age12t21_population"))).show(truncate=False))
+
 df = Trans_Substituir_Interrogacao(df)
 #P1_CC()
 #P2_CC()
 #P3_CC()
 #P4_CC()
-P5_CC()
+#P5_CC()
+P6_CC()
+
