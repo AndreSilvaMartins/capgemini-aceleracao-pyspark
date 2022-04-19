@@ -266,6 +266,12 @@ def P8_CC():
 	
 	print(df.filter((F.col('PolicOperBudg') >= 0) & (F.col('PctPolicWhite') >= 0)).stat.corr('PctPolicWhite','PolicOperBudg',))
 
+def P9_CC():
+	print("Pergunta 9 -  Qual a correlação entre população e orçamento policial?")
+	
+	print(df.filter((F.col('PolicOperBudg') >= 0) & (F.col('population') >= 0)).stat.corr('population','PolicOperBudg',))
+
+
 df = Trans_Substituir_Interrogacao(df)
 #P1_CC()
 #P2_CC()
@@ -274,5 +280,6 @@ df = Trans_Substituir_Interrogacao(df)
 #P5_CC()
 #P6_CC()
 #P7_CC()
-P8_CC()
+#P8_CC()
+P9_CC()
 
