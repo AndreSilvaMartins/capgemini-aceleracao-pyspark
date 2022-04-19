@@ -276,6 +276,12 @@ def P10_CC():
 	
 	print(df.filter((F.col('ViolentCrimesPerPop') >= 0) & (F.col('population') >= 0)).stat.corr('population','ViolentCrimesPerPop',))
 
+def P11_CC():
+	print("Pergunta 11 - Qual a correlação entre a mediana do salário familiar e número de crimes violentos?")
+	
+	print(df.filter((F.col('ViolentCrimesPerPop') >= 0) & (F.col('medFamInc') >= 0)).stat.corr('medFamInc','ViolentCrimesPerPop',))
+
+
 df = Trans_Substituir_Interrogacao(df)
 #P1_CC()
 #P2_CC()
@@ -286,5 +292,5 @@ df = Trans_Substituir_Interrogacao(df)
 #P7_CC()
 #P8_CC()
 #P9_CC()
-P10_CC()
-
+#P10_CC()
+P11_CC()
