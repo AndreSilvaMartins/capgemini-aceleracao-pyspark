@@ -144,6 +144,24 @@ def P8_CI():
                     .select(F.col("race"), F.col("education"))
                     .orderBy(F.col("education-num").desc())).show()
 
+def P9_CI():
+    print("Pergunta 9")
+
+    df_aux1 = (df.filter((F.col("education").isNotNull()) & (F.col("sex").isNotNull()) & (F.col("race").isNotNull()) & (F.col("workclass").contains("SELF-EMP-INC")))
+                 .groupBy(F.col("education"), F.col("sex"), F.col("race"))
+                 .agg(F.sum("fnlwgt").alias("People")))
+
+    #df_aux1.orderBy(F.col("People").desc()).show()
+
+    df_aux2 = (df_aux1.agg(F.max("People").alias("Max")))
+
+    df_result = (df_aux1.join(df_aux2,  (df_aux1.People ==  df_aux2.Max) 
+                                        ,"left"))
+
+    (df_result.filter(F.col('People') == F.col('Max'))
+                    .select(F.col("education"), F.col("sex"), F.col("race"), F.col("People"))).show(truncate=False)
+
+
 df = Trans_Substituir_Interrogacao(df)
 #P1_CI()
 #P2_CI()
@@ -152,4 +170,5 @@ df = Trans_Substituir_Interrogacao(df)
 #P5_CI()
 #P6_CI()
 #P7_CI()
-P8_CI()
+#P8_CI()
+P9_CI()
