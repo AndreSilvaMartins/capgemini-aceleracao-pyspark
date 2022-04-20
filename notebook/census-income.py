@@ -65,6 +65,29 @@ def P2_CI():
        .agg(F.round((F.sum(F.col("hours-per-week") * F.col("fnlwgt"))/F.sum(F.col("fnlwgt"))),2).alias("Avg_hours-per-week"))
        .orderBy(F.col("Avg_hours-per-week").desc()).show())
 
+def P3_CI():
+    print("Pergunta 3")
+
+    Population = df.filter((F.col("sex").isNotNull())).agg(F.sum(F.col("fnlwgt"))).collect()[0][0]
+
+    (df.filter((F.col("sex").isNotNull()))
+       .groupBy(F.col("sex"))
+       .agg(F.round((F.sum(F.col("fnlwgt"))/Population),2).alias("Prop_Sex"))
+       .orderBy(F.col("Prop_Sex").desc()).show())
+
+def P4_CI():
+    print("Pergunta 4")
+
+    Population = df.filter((F.col("sex").isNotNull())).agg(F.sum(F.col("fnlwgt"))).collect()[0][0]
+
+    (df.filter((F.col("sex").isNotNull()))
+       .groupBy(F.col("sex"))
+       .agg(F.round((F.sum(F.col("fnlwgt"))/Population),2).alias("Prop_Sex"))
+       .orderBy(F.col("Prop_Sex").desc()).show())
+
+
 df = Trans_Substituir_Interrogacao(df)
 #P1_CI()
-P2_CI()
+#P2_CI()
+P3_CI()
+P4_CI()
