@@ -211,7 +211,7 @@ def P12_CI():
     (df_aux1.withColumn("row",F.row_number().over(Part_A1))
                     .filter((F.col("row") == 1))
                     .select(F.col("marital_status_married"), F.col("income"), F.col("People"))
-                    .orderBy(F.col("marital_status_married").desc())).show()
+                    .orderBy(F.col("marital_status_married"))).show()
 
 def P13_CI():
     print("Pergunta 13")
@@ -227,7 +227,23 @@ def P13_CI():
     (df_aux1.withColumn("row",F.row_number().over(Part_A1))
                     .filter((F.col("row") == 1))
                     .select(F.col("sex"), F.col("income"), F.col("People"))
-                    .orderBy(F.col("sex").desc())).show()
+                    .orderBy(F.col("sex"))).show()
+
+def P14_CI():
+    print("Pergunta 14")
+
+    df_aux1 = (df.filter((F.col("native-country").isNotNull()) & (F.col("income").isNotNull()))
+                 .groupBy(F.col("native-country"), F.col("income"))
+                 .agg(F.sum("fnlwgt").alias("People")))
+
+    #df_aux1.orderBy(F.col("native-country"), F.col("People").desc()).show()
+
+    Part_A1 = Window.partitionBy(F.col("native-country")).orderBy(F.col("native-country"), F.col("People").desc())
+
+    (df_aux1.withColumn("row",F.row_number().over(Part_A1))
+                    .filter((F.col("row") == 1))
+                    .select(F.col("native-country"), F.col("income"), F.col("People"))
+                    .orderBy(F.col("native-country"))).show()
 
 df = Trans_Substituir_Interrogacao(df)
 df = Trans_Var_Married(df)
@@ -242,4 +258,5 @@ df = Trans_Var_Married(df)
 #P10_CI()
 #P11_CI()
 #P12_CI()
-P13_CI()
+#P13_CI()
+P14_CI()
