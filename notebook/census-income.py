@@ -44,6 +44,17 @@ def Trans_Substituir_Interrogacao(df):
                           )
     return df
     
+#SUBSTITUIR "?" POR NONE E TRANSFORMAR STRING UPPERCASE
+def Trans_Var_Married(df):
+    df = df.withColumn("marital_status_married", (F.when((F.col("marital-status").contains("MARRIED-CIV-SPOUSE")) |
+                                                         (F.col("marital-status").contains("MARRIED-AF-SPOUSE")) |
+                                                         (F.col("marital-status").contains("MARRIED-SPOUSE-ABSENT")) , "MARRIED")
+                                                   .when((F.col("marital-status").isNull()) , None)
+                                                   .otherwise("NOT MARRIED")
+                            )
+                        )
+    return df
+
 def Analise_Exploratoria(df):
     names = df.schema.names
     for c in names:
@@ -161,8 +172,16 @@ def P9_CI():
     (df_result.filter(F.col('People') == F.col('Max'))
                     .select(F.col("education"), F.col("sex"), F.col("race"), F.col("People"))).show(truncate=False)
 
+def P10_CI():
+    print("Pergunta 10")
+
+    People_Married = df.filter((F.col("marital_status_married").isNotNull()) & (F.col("marital_status_married") == "MARRIED")).agg(F.sum(F.col("fnlwgt"))).collect()[0][0]
+    People_NotMarried = df.filter((F.col("marital_status_married").isNotNull()) & (F.col("marital_status_married") == "NOT MARRIED")).agg(F.sum(F.col("fnlwgt"))).collect()[0][0]
+
+    print(round((People_Married/People_NotMarried),2))
 
 df = Trans_Substituir_Interrogacao(df)
+df = Trans_Var_Married(df)
 #P1_CI()
 #P2_CI()
 #P3_CI()
@@ -171,4 +190,4 @@ df = Trans_Substituir_Interrogacao(df)
 #P6_CI()
 #P7_CI()
 #P8_CI()
-P9_CI()
+P10_CI()
