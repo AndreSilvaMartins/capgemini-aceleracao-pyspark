@@ -85,9 +85,25 @@ def P4_CI():
        .agg(F.round((F.sum(F.col("fnlwgt"))/Population),2).alias("Prop_Sex"))
        .orderBy(F.col("Prop_Sex").desc()).show())
 
+def P5_CI():
+    print("Pergunta 5")
+
+    df_aux1 = (df.filter((F.col("occupation").isNotNull()))
+                 .groupBy(F.col("occupation"))
+                 .agg(F.round((F.sum(F.col("hours-per-week") * F.col("fnlwgt"))/F.sum(F.col("fnlwgt"))),2).alias("Max_Avg_hours_per_week"))
+                 .orderBy(F.col("Max_Avg_hours_per_week").desc()))
+
+    df_aux2 = (df_aux1.agg(F.max("Max_Avg_hours_per_week").alias("Max")))
+
+    df_result = (df_aux1.join(df_aux2,  (df_aux1.Max_Avg_hours_per_week ==  df_aux2.Max) 
+                                        ,"left"))
+
+    (df_result.filter(F.col('Max_Avg_hours_per_week') == F.col('Max'))
+                    .select(F.col("occupation"), F.col("Max_Avg_hours_per_week"))).show(truncate=False)
 
 df = Trans_Substituir_Interrogacao(df)
 #P1_CI()
 #P2_CI()
-P3_CI()
-P4_CI()
+#P3_CI()
+#P4_CI()
+P5_CI()
