@@ -44,13 +44,22 @@ def Trans_Substituir_Interrogacao(df):
                           )
     return df
     
-#SUBSTITUIR "?" POR NONE E TRANSFORMAR STRING UPPERCASE
+#CONSOLIDAR MARITAL STATE EM MARRIED E NOT MARRIED
 def Trans_Var_Married(df):
     df = df.withColumn("marital_status_married", (F.when((F.col("marital-status").contains("MARRIED-CIV-SPOUSE")) |
                                                          (F.col("marital-status").contains("MARRIED-AF-SPOUSE")) |
                                                          (F.col("marital-status").contains("MARRIED-SPOUSE-ABSENT")) , "MARRIED")
                                                    .when((F.col("marital-status").isNull()) , None)
                                                    .otherwise("NOT MARRIED")
+                            )
+                        )
+    return df
+
+#CONSOLIDAR RACE EM WHITE E NOT WHITE
+def Trans_Var_Race(df):
+    df = df.withColumn("race_white", (F.when((F.col("race").contains("WHITE")), "WHITE")
+                                       .when((F.col("race").isNull()) , None)
+                                       .otherwise("NOT WHITE")
                             )
                         )
     return df
@@ -245,18 +254,28 @@ def P14_CI():
                     .select(F.col("native-country"), F.col("income"), F.col("People"))
                     .orderBy(F.col("native-country"))).show()
 
+def P15_CI():
+    print("Pergunta 15")
+
+    People_White = df.filter((F.col("race_white").isNotNull()) & (F.col("race_white") == "WHITE")).agg(F.sum(F.col("fnlwgt"))).collect()[0][0]
+    People_NotWhite = df.filter((F.col("race_white").isNotNull()) & (F.col("race_white") == "NOT WHITE")).agg(F.sum(F.col("fnlwgt"))).collect()[0][0]
+
+    print(round((People_White/People_NotWhite),2))
+
 df = Trans_Substituir_Interrogacao(df)
 df = Trans_Var_Married(df)
-#P1_CI()
-#P2_CI()
-#P3_CI()
-#P4_CI()
-#P5_CI()
-#P6_CI()
-#P7_CI()
-#P8_CI()
-#P10_CI()
-#P11_CI()
-#P12_CI()
-#P13_CI()
+df = Trans_Var_Race(df)
+P1_CI()
+P2_CI()
+P3_CI()
+P4_CI()
+P5_CI()
+P6_CI()
+P7_CI()
+P8_CI()
+P10_CI()
+P11_CI()
+P12_CI()
+P13_CI()
 P14_CI()
+P15_CI()
