@@ -213,6 +213,22 @@ def P12_CI():
                     .select(F.col("marital_status_married"), F.col("income"), F.col("People"))
                     .orderBy(F.col("marital_status_married").desc())).show()
 
+def P13_CI():
+    print("Pergunta 13")
+
+    df_aux1 = (df.filter((F.col("sex").isNotNull()) & (F.col("income").isNotNull()))
+                 .groupBy(F.col("sex"), F.col("income"))
+                 .agg(F.sum("fnlwgt").alias("People")))
+
+    #df_aux1.orderBy(F.col("sex"), F.col("People").desc()).show()
+
+    Part_A1 = Window.partitionBy(F.col("sex")).orderBy(F.col("sex"), F.col("People").desc())
+
+    (df_aux1.withColumn("row",F.row_number().over(Part_A1))
+                    .filter((F.col("row") == 1))
+                    .select(F.col("sex"), F.col("income"), F.col("People"))
+                    .orderBy(F.col("sex").desc())).show()
+
 df = Trans_Substituir_Interrogacao(df)
 df = Trans_Var_Married(df)
 #P1_CI()
@@ -225,4 +241,5 @@ df = Trans_Var_Married(df)
 #P8_CI()
 #P10_CI()
 #P11_CI()
-P12_CI()
+#P12_CI()
+P13_CI()
