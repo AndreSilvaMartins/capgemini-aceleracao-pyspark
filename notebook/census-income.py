@@ -1,7 +1,8 @@
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType, FloatType
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+from pyspark.sql.window import Window
  
 if __name__ == "__main__":
     sc = SparkContext()
@@ -101,9 +102,25 @@ def P5_CI():
     (df_result.filter(F.col('Max_Avg_hours_per_week') == F.col('Max'))
                     .select(F.col("occupation"), F.col("Max_Avg_hours_per_week"))).show(truncate=False)
 
+def P6_CI():
+    print("Pergunta 6")
+
+    df_aux1 = (df.filter((F.col("education").isNotNull()) & (F.col("occupation").isNotNull()))
+                 .groupBy(F.col("education-num"), F.col("education"), F.col("occupation"))
+                 .agg(F.sum("fnlwgt").alias("People")))
+
+    Part_A1 = Window.partitionBy(F.col("education")).orderBy(F.col("education"), F.col("People").desc())
+
+    (df_aux1.withColumn("row",F.row_number().over(Part_A1))
+                    .filter((F.col("row") == 1))
+                    .select(F.col("education"), F.col("occupation"), F.col("People"))
+                    .orderBy(F.col("education-num").desc())).show()
+
+
 df = Trans_Substituir_Interrogacao(df)
 #P1_CI()
 #P2_CI()
 #P3_CI()
 #P4_CI()
-P5_CI()
+#P5_CI()
+P6_CI()
