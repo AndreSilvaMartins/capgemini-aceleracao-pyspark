@@ -180,6 +180,39 @@ def P10_CI():
 
     print(round((People_Married/People_NotMarried),2))
 
+def P11_CI():
+    print("Pergunta 11")
+
+    df_aux1 = (df.filter((F.col("race").isNotNull()) & (F.col("marital_status_married") == "NOT MARRIED"))
+                 .groupBy(F.col("race"))
+                 .agg(F.sum("fnlwgt").alias("People")))
+
+    #df_aux1.orderBy(F.col("People").desc()).show()
+
+    df_aux2 = (df_aux1.agg(F.max("People").alias("Max")))
+
+    df_result = (df_aux1.join(df_aux2,  (df_aux1.People ==  df_aux2.Max) 
+                                        ,"left"))
+
+    (df_result.filter(F.col('People') == F.col('Max'))
+                    .select(F.col("race"), F.col("People"))).show(truncate=False)
+
+def P12_CI():
+    print("Pergunta 12")
+
+    df_aux1 = (df.filter((F.col("marital_status_married").isNotNull()) & (F.col("income").isNotNull()))
+                 .groupBy(F.col("marital_status_married"), F.col("income"))
+                 .agg(F.sum("fnlwgt").alias("People")))
+
+    #df_aux1.orderBy(F.col("marital_status_married"), F.col("People").desc()).show()
+
+    Part_A1 = Window.partitionBy(F.col("marital_status_married")).orderBy(F.col("marital_status_married"), F.col("People").desc())
+
+    (df_aux1.withColumn("row",F.row_number().over(Part_A1))
+                    .filter((F.col("row") == 1))
+                    .select(F.col("marital_status_married"), F.col("income"), F.col("People"))
+                    .orderBy(F.col("marital_status_married").desc())).show()
+
 df = Trans_Substituir_Interrogacao(df)
 df = Trans_Var_Married(df)
 #P1_CI()
@@ -190,4 +223,6 @@ df = Trans_Var_Married(df)
 #P6_CI()
 #P7_CI()
 #P8_CI()
-P10_CI()
+#P10_CI()
+#P11_CI()
+P12_CI()
