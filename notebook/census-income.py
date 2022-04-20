@@ -130,6 +130,20 @@ def P7_CI():
                     .select(F.col("sex"), F.col("occupation"), F.col("People"))
                     .orderBy(F.col("sex").desc())).show()
 
+def P8_CI():
+    print("Pergunta 8")
+
+    df_aux1 = (df.filter((F.col("race").isNotNull()) & (F.col("education").isNotNull()))
+                 .select(F.col("education-num"), F.col("education"), F.col("race"))
+                 .distinct())
+
+    Part_A1 = Window.partitionBy(F.col("race")).orderBy(F.col("race"), F.col("education-num").desc())
+
+    (df_aux1.withColumn("row",F.row_number().over(Part_A1))
+                    .filter((F.col("row") == 1))
+                    .select(F.col("race"), F.col("education"))
+                    .orderBy(F.col("education-num").desc())).show()
+
 df = Trans_Substituir_Interrogacao(df)
 #P1_CI()
 #P2_CI()
@@ -137,4 +151,5 @@ df = Trans_Substituir_Interrogacao(df)
 #P4_CI()
 #P5_CI()
 #P6_CI()
-P7_CI()
+#P7_CI()
+P8_CI()
