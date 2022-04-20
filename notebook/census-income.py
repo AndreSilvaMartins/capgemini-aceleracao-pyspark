@@ -58,6 +58,13 @@ def P1_CI():
        .agg(F.sum(F.col("fnlwgt")).alias("People"))
        .orderBy(F.col("People").desc()).show())
 
-df = Trans_Substituir_Interrogacao(df)
-P1_CI()
+def P2_CI():
+    print("Pergunta 2")
+    (df.filter((F.col("race").isNotNull()))
+       .groupBy(F.col("race"))
+       .agg(F.round((F.sum(F.col("hours-per-week") * F.col("fnlwgt"))/F.sum(F.col("fnlwgt"))),2).alias("Avg_hours-per-week"))
+       .orderBy(F.col("Avg_hours-per-week").desc()).show())
 
+df = Trans_Substituir_Interrogacao(df)
+#P1_CI()
+P2_CI()
